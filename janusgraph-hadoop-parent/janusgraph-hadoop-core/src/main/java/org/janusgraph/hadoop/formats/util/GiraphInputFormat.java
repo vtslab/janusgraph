@@ -117,4 +117,8 @@ public abstract class GiraphInputFormat extends InputFormat<NullWritable, Vertex
             }
         }
     }
+
+    public InputFormat<StaticBuffer, Iterable<Entry>> getInputFormat() {
+        return inputFormat;
+    }
 }
