@@ -48,6 +48,8 @@ public class AuthorizedTraversalTest {
     }
 
     private AuthorizedTraversalSource g() {
+
+        // Needed for testing because the withAuthorization method can only be called once
         return graph.traversal(AuthorizedTraversalSource.class);
     }
 
