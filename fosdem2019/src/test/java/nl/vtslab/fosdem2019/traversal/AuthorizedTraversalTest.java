@@ -15,52 +15,36 @@ import static nl.vtslab.fosdem2019.traversal.AuthorizedTraversalSource.onceMessa
 import static nl.vtslab.fosdem2019.traversal.AuthorizedTraversalSource.orderMessage;
 import static nl.vtslab.fosdem2019.traversal.DefaultAuthorizedTraversal.blockMessage;
 import static org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality.set;
-import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
 
 public class AuthorizedTraversalTest {
 
-    static String bvhAuthz = "8;-;-";
-    static String bvh2Authz = "8;2;-";
-    static String summit3Authz = "9:3;11";
-    static String summit4Authz = "9:4;11";
-    static String summit5Authz = "9:5;11";
-    static String authorized = "authorized";
-    static String unauthorized = "unauthorized";
+    private static String src1Authz = "8;-;-";
+    private static String src2Authz = "8;2;-";
+    private static String src3Authz = "9;3;11";
+    private static String src4Authz = "9;4;11";
+    private static String src5Authz = "9;5;11";
     private static TinkerGraph graph;
 
     @BeforeClass
     public static void createGraph() {
         graph = TinkerGraph.open();
         GraphTraversalSource g = graph.traversal();
-        g.addV("NatuurlijkPersoon").property("name", "p0").property("generiekeAutorisatie", bvhAuthz)
-                .property(set, "generiekeAutorisatie", bvh2Authz).next();
-        g.addV("NatuurlijkPersoon").property("name", "p1").property("generiekeAutorisatie", summit3Authz).next();
-        g.addV("NatuurlijkPersoon").property("name", "p2").property("generiekeAutorisatie", summit4Authz).next();
-        g.addV("Incident").property("name", "v1").property("generiekeAutorisatie", bvhAuthz).next();
-        g.addV("Incident").property("name", "v2").property("generiekeAutorisatie", summit4Authz).next();
+        g.addV("Person").property("name", "p0").property("authz", src1Authz)
+                .property(set, "authz", src2Authz).next();
+        g.addV("Person").property("name", "p1").property("authz", src3Authz).next();
+        g.addV("Person").property("name", "p2").property("authz", src4Authz).next();
+        g.addV("Event").property("name", "v1").property("authz", src1Authz).next();
+        g.addV("Event").property("name", "v2").property("authz", src4Authz).next();
         g.V().has("name", "v1").as("a").
-                V().has("name", "p0").addE("VERDACHTE").to("a").property("name", "e01").property("generiekeAutorisatie", bvhAuthz).
-                V().has("name", "p1").addE("VERDACHTE").to("a").property("name", "e11").property("generiekeAutorisatie", summit3Authz).
+                V().has("name", "p0").addE("Visits").to("a").property("name", "e01").property("authz", src1Authz).
+                V().has("name", "p1").addE("Visits").to("a").property("name", "e11").property("authz", src3Authz).
                 next();
         g.V().has("name", "v2").as("a").
-                V().has("name", "p1").addE("VERDACHTE").to("a").property("name", "e12").property("generiekeAutorisatie", summit3Authz).
-                V().has("name", "p2").addE("VERDACHTE").to("a").property("name", "e22").property("generiekeAutorisatie", summit5Authz).
+                V().has("name", "p1").addE("Visits").to("a").property("name", "e12").property("authz", src3Authz).
+                V().has("name", "p2").addE("Visits").to("a").property("name", "e22").property("authz", src5Authz).
                 next();
-
-        // Vertices and edges for methodsBothInOutShouldNotSkipEdgeAuthorization()
-        Vertex bothInOut0 = g.addV("NatuurlijkPersoon").property("name", "bothInOut0").property("generiekeAutorisatie", authorized).next();
-        Vertex bothInOut1 = g.addV("NatuurlijkPersoon").property("name", "bothInOut1").property("generiekeAutorisatie", authorized).next();
-        Vertex bothInOut2 = g.addV("NatuurlijkPersoon").property("name", "bothInOut2").property("generiekeAutorisatie", authorized).next();
-        Vertex bothInOut3 = g.addV("NatuurlijkPersoon").property("name", "bothInOut3").property("generiekeAutorisatie", authorized).next();
-        Vertex bothInOut4 = g.addV("NatuurlijkPersoon").property("name", "bothInOut4").property("generiekeAutorisatie", authorized).next();
-
-        bothInOut0.addEdge("KIND", bothInOut1, "generiekeAutorisatie", authorized);
-        bothInOut0.addEdge("KIND", bothInOut2, "generiekeAutorisatie", unauthorized);
-        bothInOut3.addEdge("OUDER", bothInOut0, "generiekeAutorisatie", authorized);
-        bothInOut4.addEdge("OUDER", bothInOut0, "generiekeAutorisatie", unauthorized);
-
     }
 
     private AuthorizedTraversalSource g() {
@@ -72,38 +56,38 @@ public class AuthorizedTraversalTest {
 
         int size;
 
-        size = g().withAuthorization(Arrays.asList(bvhAuthz)).V().toList().size();
+        size = g().withAuthorization(Arrays.asList(src1Authz)).V().toList().size();
         assertEquals(2, size);
 
-        size = g().withAuthorization(Arrays.asList(summit3Authz)).V().toList().size();
+        size = g().withAuthorization(Arrays.asList(src3Authz)).V().toList().size();
         assertEquals(1, size);
 
-        size = g().withAuthorization(Arrays.asList(bvhAuthz, summit3Authz)).V().toList().size();
+        size = g().withAuthorization(Arrays.asList(src1Authz, src3Authz)).V().toList().size();
         assertEquals(3, size);
 
-        size = g().withAuthorization(Arrays.asList(bvhAuthz)).E().toList().size();
+        size = g().withAuthorization(Arrays.asList(src1Authz)).E().toList().size();
         assertEquals(1, size);
 
-        size = g().withAuthorization(Arrays.asList(summit3Authz)).E().toList().size();
+        size = g().withAuthorization(Arrays.asList(src3Authz)).E().toList().size();
         assertEquals(2, size);
 
-        size = g().withAuthorization(Arrays.asList(bvhAuthz)).V().has("name", "v1").inE().toList().size();
+        size = g().withAuthorization(Arrays.asList(src1Authz)).V().has("name", "v1").inE().toList().size();
         assertEquals(1, size);
 
-        size = g().withAuthorization(Arrays.asList(summit3Authz)).V().has("name", "p1").outE().toList().size();
+        size = g().withAuthorization(Arrays.asList(src3Authz)).V().has("name", "p1").outE().toList().size();
         assertEquals(2, size);
 
-        size = g().withAuthorization(Arrays.asList(bvhAuthz)).V().has("name", "v1").in().toList().size();
+        size = g().withAuthorization(Arrays.asList(src1Authz)).V().has("name", "v1").in().toList().size();
         assertEquals(1, size);
 
-        size = g().withAuthorization(Arrays.asList(summit3Authz, summit4Authz)).
+        size = g().withAuthorization(Arrays.asList(src3Authz, src4Authz)).
                 V().has("name", "p1").out().toList().size();
         assertEquals(1, size);
 
-        size = g().withAuthorization(Arrays.asList(bvhAuthz)).V().where(__.inE()).toList().size();
+        size = g().withAuthorization(Arrays.asList(src1Authz)).V().where(__.inE()).toList().size();
         assertEquals(1, size);
 
-        size = g().withAuthorization(Arrays.asList(summit3Authz, summit4Authz)).
+        size = g().withAuthorization(Arrays.asList(src3Authz, src4Authz)).
                 V().where(__.bothE()). toList().size();
         assertEquals(2, size);
 
@@ -121,36 +105,36 @@ public class AuthorizedTraversalTest {
         }
 
         try {
-            g().withAuthorization(Arrays.asList(bvhAuthz)).
-                withAuthorization(Arrays.asList(bvhAuthz, summit3Authz)).V().toList();
+            g().withAuthorization(Arrays.asList(src1Authz)).
+                withAuthorization(Arrays.asList(src1Authz, src3Authz)).V().toList();
             fail("Query with second withAuthorization() call should fail");
         } catch (Exception exception) {
             assertEquals(exception.getMessage(), onceMessage);
         }
 
         try {
-            g().withAuthorization(Arrays.asList(bvhAuthz)).clone().
-                withAuthorization(Arrays.asList(bvhAuthz, summit3Authz)).V().toList();
+            g().withAuthorization(Arrays.asList(src1Authz)).clone().
+                withAuthorization(Arrays.asList(src1Authz, src3Authz)).V().toList();
             fail("Query with second withAuthorization() call should fail");
         } catch (Exception exception) {
             assertEquals(exception.getMessage(), onceMessage);
         }
 
         try {
-            g().withSideEffect("userAuthorization", Collections.singletonList(bvhAuthz)).V().toList();
+            g().withSideEffect("userAuthorization", Collections.singletonList(src1Authz)).V().toList();
             fail("Query with userAuthorizations provided by withSideEffect() should fail");
         } catch (Exception exception) {
             assertEquals(exception.getMessage(), orderMessage);
         }
 
         // Addition of "userAuthorization" sideEffect() should be ignored
-        result = g().withAuthorization(Arrays.asList(bvhAuthz)).
-            withSideEffect("userAuthorization", Arrays.asList(summit3Authz)).V().toList();
+        result = g().withAuthorization(Arrays.asList(src1Authz)).
+            withSideEffect("userAuthorization", Arrays.asList(src3Authz)).V().toList();
         assertEquals(2, result.size());
 
         try {
-            g().withSideEffect("userAuthorization", Arrays.asList(summit3Authz)).
-                withAuthorization(Arrays.asList(bvhAuthz)).V().toList();
+            g().withSideEffect("userAuthorization", Arrays.asList(src3Authz)).
+                withAuthorization(Arrays.asList(src1Authz)).V().toList();
             fail("Calling withSideEffect() before withAuthorization() should fail");
         } catch (Exception exception) {
             assertEquals(exception.getMessage(), orderMessage);
@@ -158,8 +142,8 @@ public class AuthorizedTraversalTest {
 
         try {
             // The cast is required to allow for the inject() step
-            ((AuthorizedTraversal<Vertex,Object>)(Object)g().withAuthorization(Arrays.asList(bvhAuthz)).V()).
-                as("x").inject(summit3Authz).store("userAuthorization").select("x").toList();
+            ((AuthorizedTraversal<Vertex,Object>)(Object)g().withAuthorization(Arrays.asList(src1Authz)).V()).
+                as("x").inject(src3Authz).store("userAuthorization").select("x").toList();
             fail("Faking userAuthorizations using the store() step should fail");
         } catch (Exception exception) {
             assertTrue(exception instanceof UnsupportedOperationException);
@@ -167,8 +151,8 @@ public class AuthorizedTraversalTest {
 
         try {
             // The cast is required to allow for the inject() step
-            ((AuthorizedTraversal<Vertex,Object>)(Object)g().withAuthorization(Arrays.asList(bvhAuthz)).V()).
-                as("x").inject(summit3Authz).aggregate("userAuthorization").select("x").toList();
+            ((AuthorizedTraversal<Vertex,Object>)(Object)g().withAuthorization(Arrays.asList(src1Authz)).V()).
+                as("x").inject(src3Authz).aggregate("userAuthorization").select("x").toList();
             fail("Faking userAuthorizations using the aggregate() step should fail");
         } catch (Exception exception) {
             assertTrue(exception instanceof UnsupportedOperationException);
@@ -185,7 +169,7 @@ public class AuthorizedTraversalTest {
     public void traversalAttackTest() {
         // Without blocking getGraph() all vertices would be returned
         try {
-            g().withAuthorization(Collections.singletonList(bvhAuthz)).V().getGraph().get().traversal().V().toList();
+            g().withAuthorization(Collections.singletonList(src1Authz)).V().getGraph().get().traversal().V().toList();
             fail("Accessing DefaultAuthorizedTraversal.getGraph() should fail");
         } catch (Exception exception) {
             assertEquals(exception.getMessage(), blockMessage);
@@ -215,7 +199,7 @@ public class AuthorizedTraversalTest {
         // This is the innocent-looking gremlin query under test
         // (just comment out the security manager and fail statement above)
         // map(v -> vertices) would have the same effect if map(Function) were not blocked for other reasons
-        List<Vertex> result = g().withAuthorization(Collections.singletonList(bvhAuthz)).V().
+        List<Vertex> result = g().withAuthorization(Collections.singletonList(src1Authz)).V().
             inject(vertices).dedup().toList();
         assertEquals(2, result.size());
     }
@@ -231,8 +215,8 @@ public class AuthorizedTraversalTest {
     public void lambdaAttackTest() {
         // Without blocking map(Function<Traverser>), unauthorized vertices would be returned
         try {
-            List<String> authorizations = Arrays.asList(bvhAuthz, summit3Authz);
-            List<Vertex> result = g().withAuthorization(Arrays.asList(bvhAuthz)).V().
+            List<String> authorizations = Arrays.asList(src1Authz, src3Authz);
+            List<Vertex> result = g().withAuthorization(Arrays.asList(src1Authz)).V().
             map(t -> {t.sideEffects("userAuthorization", authorizations); return t.get();}).toList();
             fail("Accessing AuthorizedTraversal.map(Function) should fail");
         } catch (Exception exception) {
@@ -251,17 +235,17 @@ public class AuthorizedTraversalTest {
 
         // Anonymous __.V() should inherit userAuthorization from parent
         // This also verifies proper working of the map(Traversal) variant
-        int size = g().withAuthorization(Arrays.asList(bvhAuthz)).V().
+        int size = g().withAuthorization(Arrays.asList(src1Authz)).V().
             map(__.V().fold()).unfold().dedup().toList().size();
         assertEquals(2, size);
 
         // Anonymous __.inE() should inherit userAuthorization from parent
-        size = g().withAuthorization(Arrays.asList(bvhAuthz)).V().has("name", "v1").
+        size = g().withAuthorization(Arrays.asList(src1Authz)).V().has("name", "v1").
             map(__.inE().fold()).unfold().dedup().toList().size();
         assertEquals(1, size);
 
         // Anonymous __.emit(Traversal) should still work
-        size = g().withAuthorization(Arrays.asList(bvhAuthz)).V().has("name", "v1").
+        size = g().withAuthorization(Arrays.asList(src1Authz)).V().has("name", "v1").
             map(__.repeat(__.inE()).times(1).emit(__.values("name"))).toList().size();
         assertEquals(1, size);
     }

@@ -29,11 +29,11 @@ import org.slf4j.LoggerFactory;
 
 /*
  *  TraversalSource that enforces the use of a withAuthorization() method and returns an
- *  AuthorizedTraversal that filters all vertices and edges by their "generiekeAutorisatie" property.
+ *  AuthorizedTraversal that filters all vertices and edges by their "authz" property.
  *
  *  The AuthorizedTraversalSource is not intended as a security measure per se (it is used in a
  *  the trusted context of a service using janusgraph), but rather:
- *   - it keep traversals readable [all has("generiekeAutorisatie", __.where(P.within(USERAUTHORIZATION)))
+ *   - it keep traversals readable [all has("authz", __.where(P.within(USERAUTHORIZATION)))
  *         filters are implied]
  *   - it makes the proper enforcement of user authorizations easily auditable, see below.
  *
@@ -101,7 +101,7 @@ public final class AuthorizedTraversalSource extends GraphTraversalSource {
     DefaultAuthorizedTraversal traversal = new DefaultAuthorizedTraversal(clone);
     return (AuthorizedTraversal) traversal.asAdmin().
         addStep(new GraphStep(traversal, Vertex.class, true, vertexIds)).
-        has("generiekeAutorisatie", __.where(P.within(USERAUTHORIZATION)));
+        has("authz", __.where(P.within(USERAUTHORIZATION)));
   }
 
   @Override
@@ -116,7 +116,7 @@ public final class AuthorizedTraversalSource extends GraphTraversalSource {
     DefaultAuthorizedTraversal traversal = new DefaultAuthorizedTraversal(clone);
     return (AuthorizedTraversal) traversal.asAdmin().
         addStep(new GraphStep(traversal, Edge.class, true, edgeIds)).
-        has("generiekeAutorisatie", __.where(P.within(USERAUTHORIZATION)));
+        has("authz", __.where(P.within(USERAUTHORIZATION)));
   }
 
   /*

@@ -45,85 +45,85 @@ public interface AuthorizedTraversal<S, E> extends GraphTraversal.Admin<S, E> {
   @Override
   default AuthorizedTraversal<S, Vertex> V(Object... vertexIdsOrElements) {
     return (AuthorizedTraversal) GraphTraversal.Admin.super.V(vertexIdsOrElements).
-        has("generiekeAutorisatie", __.where(P.within(USERAUTHORIZATION)));
+        has("authz", __.where(P.within(USERAUTHORIZATION)));
   }
 
   @Override
   default AuthorizedTraversal<S, Vertex> out(String... edgeLabels) {
-    // The naive implementation ".out(edgeLabels).has("generiekeAutorisatie", where(within(USERAUTHORIZATION))"
+    // The naive implementation ".out(edgeLabels).has("authz", where(within(USERAUTHORIZATION))"
     // would simply use the edges without question.
     // In an authorized graph, the edges may have authorizations different from the vertices they refer to.
     // Hence, we need to make sure that we can reach the vertex via authorized edges, even if the vertex itself
     // would be authorized by itself (e.g., as a target for a direct initial search).
     return (AuthorizedTraversal) GraphTraversal.Admin.super.
-            outE(edgeLabels).has("generiekeAutorisatie", __.where(P.within(USERAUTHORIZATION))).
-            otherV().has("generiekeAutorisatie", __.where(P.within(USERAUTHORIZATION)));
+            outE(edgeLabels).has("authz", __.where(P.within(USERAUTHORIZATION))).
+            otherV().has("authz", __.where(P.within(USERAUTHORIZATION)));
   }
 
   @Override
   default AuthorizedTraversal<S, Vertex> in(String... edgeLabels) {
-    // The naive implementation ".in(edgeLabels).has("generiekeAutorisatie", where(within(USERAUTHORIZATION))"
+    // The naive implementation ".in(edgeLabels).has("authz", where(within(USERAUTHORIZATION))"
     // would simply use the edges without question.
     // In an authorized graph, the edges may have authorizations different from the vertices they refer to.
     // Hence, we need to make sure that we can reach the vertex via authorized edges, even if the vertex itself
     // would be authorized by itself (e.g., as a target for a direct initial search).
     return (AuthorizedTraversal) GraphTraversal.Admin.super.
-            inE(edgeLabels).has("generiekeAutorisatie", __.where(P.within(USERAUTHORIZATION))).
-            otherV().has("generiekeAutorisatie", __.where(P.within(USERAUTHORIZATION)));
+            inE(edgeLabels).has("authz", __.where(P.within(USERAUTHORIZATION))).
+            otherV().has("authz", __.where(P.within(USERAUTHORIZATION)));
   }
 
   @Override
   default AuthorizedTraversal<S, Vertex> both(String... edgeLabels) {
-    // The naive implementation ".both(edgeLabels).has("generiekeAutorisatie", where(within(USERAUTHORIZATION))"
+    // The naive implementation ".both(edgeLabels).has("authz", where(within(USERAUTHORIZATION))"
     // would simply use the edges without question.
     // In an authorized graph, the edges may have authorizations different from the vertices they refer to.
     // Hence, we need to make sure that we can reach the vertex via authorized edges, even if the vertex itself
     // would be authorized by itself (e.g., as a target for a direct initial search).
     return (AuthorizedTraversal) GraphTraversal.Admin.super.
-            bothE(edgeLabels).has("generiekeAutorisatie", __.where(P.within(USERAUTHORIZATION))).
-            otherV().has("generiekeAutorisatie", __.where(P.within(USERAUTHORIZATION)));
+            bothE(edgeLabels).has("authz", __.where(P.within(USERAUTHORIZATION))).
+            otherV().has("authz", __.where(P.within(USERAUTHORIZATION)));
   }
 
   @Override
   default AuthorizedTraversal<S, Edge> outE(String... edgeLabels) {
     return (AuthorizedTraversal) GraphTraversal.Admin.super.outE(edgeLabels).
-        has("generiekeAutorisatie", __.where(P.within(USERAUTHORIZATION)));
+        has("authz", __.where(P.within(USERAUTHORIZATION)));
   }
 
   @Override
   default AuthorizedTraversal<S, Edge> inE(String... edgeLabels) {
     return (AuthorizedTraversal) GraphTraversal.Admin.super.inE(edgeLabels).
-        has("generiekeAutorisatie", __.where(P.within(USERAUTHORIZATION)));
+        has("authz", __.where(P.within(USERAUTHORIZATION)));
   }
 
   @Override
   default AuthorizedTraversal<S, Edge> bothE(String... edgeLabels) {
     return (AuthorizedTraversal) GraphTraversal.Admin.super.bothE(edgeLabels).
-        has("generiekeAutorisatie", __.where(P.within(USERAUTHORIZATION)));
+        has("authz", __.where(P.within(USERAUTHORIZATION)));
   }
 
   @Override
   default AuthorizedTraversal<S, Vertex> inV() {
     return (AuthorizedTraversal) GraphTraversal.Admin.super.inV().
-        has("generiekeAutorisatie", __.where(P.within(USERAUTHORIZATION)));
+        has("authz", __.where(P.within(USERAUTHORIZATION)));
   }
 
   @Override
   default AuthorizedTraversal<S, Vertex> outV() {
     return (AuthorizedTraversal) GraphTraversal.Admin.super.outV().
-        has("generiekeAutorisatie", __.where(P.within(USERAUTHORIZATION)));
+        has("authz", __.where(P.within(USERAUTHORIZATION)));
   }
 
   @Override
   default AuthorizedTraversal<S, Vertex> bothV() {
     return (AuthorizedTraversal) GraphTraversal.Admin.super.bothV().
-        has("generiekeAutorisatie", __.where(P.within(USERAUTHORIZATION)));
+        has("authz", __.where(P.within(USERAUTHORIZATION)));
   }
 
   @Override
   default AuthorizedTraversal<S, Vertex> otherV() {
     return (AuthorizedTraversal) GraphTraversal.Admin.super.otherV().
-        has("generiekeAutorisatie", __.where(P.within(USERAUTHORIZATION)));
+        has("authz", __.where(P.within(USERAUTHORIZATION)));
   }
 
   // The constructors and methods below were generated initially by @GremlinDSL
