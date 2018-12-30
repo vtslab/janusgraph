@@ -207,13 +207,14 @@ public class AuthorizedTraversalTest {
     */
     @Test
     public void lambdaAccessTest() {
-        // Without blocking map(Function<Traverser>), unauthorized vertices would be returned
+        // Without blocking map(Function<Traverser>), an unauthorized vertex would be returned
         try {
-            List<String> authorizations = Arrays.asList(src1Authz, src3Authz);
-            List<Vertex> result = g().withAuthorization(Arrays.asList(src1Authz)).V().map(t -> {
-                t.sideEffects("userAuthorization", authorizations);
-                return t.get();
-            }).toList();
+            List<String> authorizations = Arrays.asList(src4Authz, src5Authz);
+            List<Vertex> result = g().withAuthorization(Arrays.asList(src4Authz)).V().
+                    has("name", "p2").map(t -> {
+                        t.sideEffects("userAuthorization", authorizations);
+                        return t.get();
+                    }).out().toList();
             fail("Accessing AuthorizedTraversal.map(Function) should fail");
         } catch (Exception exception) {
             assertEquals(exception.getMessage(), blockMessage);
