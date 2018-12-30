@@ -7,7 +7,7 @@
     <version>0.0.1-SNAPSHOT</version>
 
     <properties>
-        <gremlin.version>3.2.6</gremlin.version> 
+        <gremlin.version>3.2.9</gremlin.version>
     </properties>
 
 	<build>
