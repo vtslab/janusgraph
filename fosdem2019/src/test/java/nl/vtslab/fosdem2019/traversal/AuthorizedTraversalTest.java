@@ -20,11 +20,11 @@ import static org.junit.Assert.*;
 
 public class AuthorizedTraversalTest {
 
-    private static String src1Authz = "8;-;-";
-    private static String src2Authz = "8;2;-";
-    private static String src3Authz = "9;3;11";
-    private static String src4Authz = "9;4;11";
-    private static String src5Authz = "9;5;11";
+    private static String src1Authz = "biz;3";
+    private static String src2Authz = "fb;2";
+    private static String src3Authz = "fin;3";
+    private static String src4Authz = "fin;2";
+    private static String src5Authz = "fin;4";
     private static TinkerGraph graph;
 
     @BeforeClass
@@ -96,7 +96,7 @@ public class AuthorizedTraversalTest {
     }
 
     @Test
-    public void traversalSourceAttackTest() {
+    public void traversalSourceAccessTest() {
         List<Vertex> result;
 
         try {
@@ -108,14 +108,6 @@ public class AuthorizedTraversalTest {
 
         try {
             g().withAuthorization(Arrays.asList(src1Authz)).
-                withAuthorization(Arrays.asList(src1Authz, src3Authz)).V().toList();
-            fail("Query with second withAuthorization() call should fail");
-        } catch (Exception exception) {
-            assertEquals(exception.getMessage(), onceMessage);
-        }
-
-        try {
-            g().withAuthorization(Arrays.asList(src1Authz)).clone().
                 withAuthorization(Arrays.asList(src1Authz, src3Authz)).V().toList();
             fail("Query with second withAuthorization() call should fail");
         } catch (Exception exception) {
@@ -162,13 +154,13 @@ public class AuthorizedTraversalTest {
     }
 
     /*
-     * For the following blocked methods attacks are possible, but not provided as test:
+     * For the following blocked methods unauthorized access would have been possible, but not provided as test:
      *  - addV, addE, property
      *  - program, sideEffect(Consumer<Traverser>)
      *  - addStart, addStarts, addStep, removeStep
     */
     @Test
-    public void traversalAttackTest() {
+    public void traversalAccessTest() {
         // Without blocking getGraph() all vertices would be returned
         try {
             g().withAuthorization(Collections.singletonList(src1Authz)).V().getGraph().get().traversal().V().toList();
@@ -179,7 +171,7 @@ public class AuthorizedTraversalTest {
     }
 
     @Test
-    public void reflectionAttackTest() {
+    public void reflectionAccessTest() {
         // Beware: Activating the java security manager to have this test pass can require a more elaborate java policy
         // (in other words, activating the default security manager like below can make other tests fail)
         // It also shows that applications relying on AuthorizedTraversal need the java SecurityManager to be set.
@@ -208,18 +200,20 @@ public class AuthorizedTraversalTest {
 
 
     /*
-     * For the following blocked method variants that provide Traversers, analogous attacks are possible as for map,
-     * but these are not provided as test:
+     * For the following blocked method variants that provide Traversers, analogous ways for unauthorized access would
+     * have been possible, but these are not provided as test:
      *  - barrier, branch, flatMap, filter
      *  - emit, sideEffect, until
     */
     @Test
-    public void lambdaAttackTest() {
+    public void lambdaAccessTest() {
         // Without blocking map(Function<Traverser>), unauthorized vertices would be returned
         try {
             List<String> authorizations = Arrays.asList(src1Authz, src3Authz);
-            List<Vertex> result = g().withAuthorization(Arrays.asList(src1Authz)).V().
-            map(t -> {t.sideEffects("userAuthorization", authorizations); return t.get();}).toList();
+            List<Vertex> result = g().withAuthorization(Arrays.asList(src1Authz)).V().map(t -> {
+                t.sideEffects("userAuthorization", authorizations);
+                return t.get();
+            }).toList();
             fail("Accessing AuthorizedTraversal.map(Function) should fail");
         } catch (Exception exception) {
             assertEquals(exception.getMessage(), blockMessage);
@@ -227,13 +221,13 @@ public class AuthorizedTraversalTest {
     }
 
     /*
-     * Attacks using anonymous traversals are analogous to those on the main traversal
+     * Ways of unauthorized access using anonymous traversals are analogous to those on the main traversal
      * Only a few checks are made:
      *  - for traversals that should not expose unauthorized graph elements
      *  - whether steps that have blocked variants still work properly
      */
     @Test
-    public void anonymousAttackTest() {
+    public void anonymousAccessTest() {
 
         // Anonymous __.V() should inherit userAuthorization from parent
         // This also verifies proper working of the map(Traversal) variant

@@ -4,6 +4,7 @@ import java.lang.Class;
 import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BinaryOperator;
@@ -60,7 +61,10 @@ public final class AuthorizedTraversalSource extends GraphTraversalSource {
     if (authorized) {
       throw(new RuntimeException(onceMessage));
     }
-    userAuthorization = authorizationStrings;
+    if (System.getSecurityManager() == null) {
+      logger.warn("SecurityManager not set. Access to the entire graph still possible using reflection!");
+    }
+    userAuthorization = Collections.unmodifiableList(authorizationStrings);
     this.authorized = true;
     return this;
   }
