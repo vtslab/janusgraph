@@ -59,7 +59,10 @@ import org.slf4j.LoggerFactory;
  *       nl.vtslab.fosdem2019.traversal.AuthorizedTraversalSource (beware of similarly named classes)
  *   - a check of recent changes in nl.vtslab.fosdem2019.traversal.AuthorizedTraversalSource
  *   - a check of calls to TraversalStrategies.GlobalCache.registerStrategies() [a strategy can add,
- *     remove and reorder traversalsteps; this attack is not attempted below]
+ *     remove and reorder traversalsteps; this way of unauthorized access is not attempted below]
+ *
+ *  If you merely want to filter a traversal by authorization attributes without enforcing it, you
+ *  are probably better off using TinkerPop's SubgraphStrategy.
  */
 public final class AuthorizedTraversalSource extends GraphTraversalSource {
 
