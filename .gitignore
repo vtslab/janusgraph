@@ -1,4 +1,5 @@
 *.log
+*.jar
 target/
 .idea/
 *.iml
